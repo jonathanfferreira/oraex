@@ -1,0 +1,439 @@
+{
+  "servidor": "GNCASNPW03527",
+  "total_databases": 5,
+  "total_tabelas": 270,
+  "total_registros": 4833104781,
+  "databases": {
+    "AG": {
+      "tabelas": 1,
+      "registros": 5,
+      "top_5": [
+        [
+          "dbo.t",
+          5,
+          "72 KB"
+        ]
+      ]
+    },
+    "Ger7SaaS": {
+      "tabelas": 108,
+      "registros": 4832777562,
+      "top_5": [
+        [
+          "dbo.TEL_Estatisticas",
+          1967439836,
+          "806,04 GB"
+        ],
+        [
+          "dbo.TEL_TransacMsg",
+          1348048386,
+          "901,77 GB"
+        ],
+        [
+          "dbo.TEL_TransacLog",
+          1145290995,
+          "47,81 GB"
+        ],
+        [
+          "dbo.TEL_HistTelecarga",
+          246188241,
+          "11,83 GB"
+        ],
+        [
+          "dbo.TEL_AtualizacaoXPrevia",
+          95438524,
+          "3,80 GB"
+        ]
+      ]
+    },
+    "master": {
+      "tabelas": 5,
+      "registros": 4,
+      "top_5": [
+        [
+          "dbo.MSreplication_options",
+          3,
+          "16 KB"
+        ],
+        [
+          "dbo.spt_monitor",
+          1,
+          "16 KB"
+        ],
+        [
+          "dbo.spt_fallback_db",
+          0,
+          "0 KB"
+        ],
+        [
+          "dbo.spt_fallback_dev",
+          0,
+          "0 KB"
+        ],
+        [
+          "dbo.spt_fallback_usg",
+          0,
+          "0 KB"
+        ]
+      ]
+    },
+    "tempdb": {
+      "tabelas": 12,
+      "registros": 0,
+      "top_5": [
+        [
+          "dbo.#A5B91D58",
+          0,
+          "72 KB"
+        ],
+        [
+          "dbo.#A7A165CA",
+          0,
+          "72 KB"
+        ],
+        [
+          "dbo.#A8958A03",
+          0,
+          "72 KB"
+        ],
+        [
+          "dbo.#A989AE3C",
+          0,
+          "72 KB"
+        ],
+        [
+          "dbo.#AD5A3F20",
+          0,
+          "72 KB"
+        ]
+      ]
+    },
+    "msdb": {
+      "tabelas": 144,
+      "registros": 327210,
+      "top_5": [
+        [
+          "dbo.backupset",
+          135265,
+          "19,98 MB"
+        ],
+        [
+          "dbo.backupfile",
+          54106,
+          "22,95 MB"
+        ],
+        [
+          "dbo.backupmediaset",
+          54106,
+          "6,14 MB"
+        ],
+        [
+          "dbo.backupmediafamily",
+          54106,
+          "5,64 MB"
+        ],
+        [
+          "dbo.backupfilegroup",
+          27053,
+          "3,13 MB"
+        ]
+      ]
+    }
+  },
+  "top20_tables": [
+    {
+      "Database": "Ger7SaaS",
+      "Full Table Name": "dbo.TEL_Estatisticas",
+      "Total Rows": 1967439836,
+      "Avg Row Size": "21 Bytes",
+      "Total Reserved Size": "806,04 GB",
+      "Data": "40.170,07 MB",
+      "Indexes": "63.224,40 MB",
+      "% Index Weight": 0.077
+    },
+    {
+      "Database": "Ger7SaaS",
+      "Full Table Name": "dbo.TEL_TransacMsg",
+      "Total Rows": 1348048386,
+      "Avg Row Size": "683 Bytes",
+      "Total Reserved Size": "901,77 GB",
+      "Data": "878.378,02 MB",
+      "Indexes": "44.820,30 MB",
+      "% Index Weight": 0.049
+    },
+    {
+      "Database": "Ger7SaaS",
+      "Full Table Name": "dbo.TEL_TransacLog",
+      "Total Rows": 1145290995,
+      "Avg Row Size": "13 Bytes",
+      "Total Reserved Size": "47,81 GB",
+      "Data": "14.402,81 MB",
+      "Indexes": "34.510,69 MB",
+      "% Index Weight": 0.705
+    },
+    {
+      "Database": "Ger7SaaS",
+      "Full Table Name": "dbo.TEL_HistTelecarga",
+      "Total Rows": 246188241,
+      "Avg Row Size": "12 Bytes",
+      "Total Reserved Size": "11,83 GB",
+      "Data": "2.918,98 MB",
+      "Indexes": "8.208,34 MB",
+      "% Index Weight": 0.678
+    },
+    {
+      "Database": "Ger7SaaS",
+      "Full Table Name": "dbo.TEL_AtualizacaoXPrevia",
+      "Total Rows": 95438524,
+      "Avg Row Size": "12 Bytes",
+      "Total Reserved Size": "3,80 GB",
+      "Data": "1.101,88 MB",
+      "Indexes": "2.686,49 MB",
+      "% Index Weight": 0.691
+    },
+    {
+      "Database": "Ger7SaaS",
+      "Full Table Name": "dbo.GER_Terminal",
+      "Total Rows": 19312600,
+      "Avg Row Size": "40 Bytes",
+      "Total Reserved Size": "1,81 GB",
+      "Data": "729,94 MB",
+      "Indexes": "1.104,17 MB",
+      "% Index Weight": 0.597
+    },
+    {
+      "Database": "Ger7SaaS",
+      "Full Table Name": "dbo.TEL_TransacErro",
+      "Total Rows": 9946240,
+      "Avg Row Size": "547 Bytes",
+      "Total Reserved Size": "5,45 GB",
+      "Data": "5.189,53 MB",
+      "Indexes": "389,20 MB",
+      "% Index Weight": 0.07
+    },
+    {
+      "Database": "Ger7SaaS",
+      "Full Table Name": "dbo.GER_AuditoriaItem",
+      "Total Rows": 671716,
+      "Avg Row Size": "67 Bytes",
+      "Total Reserved Size": "46,05 MB",
+      "Data": "42,96 MB",
+      "Indexes": "1,22 MB",
+      "% Index Weight": 0.026
+    },
+    {
+      "Database": "Ger7SaaS",
+      "Full Table Name": "dbo.GER_Auditoria",
+      "Total Rows": 239275,
+      "Avg Row Size": "66 Bytes",
+      "Total Reserved Size": "17,37 MB",
+      "Data": "14,96 MB",
+      "Indexes": "0,69 MB",
+      "% Index Weight": 0.04
+    },
+    {
+      "Database": "msdb",
+      "Full Table Name": "dbo.backupset",
+      "Total Rows": 135265,
+      "Avg Row Size": "117 Bytes",
+      "Total Reserved Size": "19,98 MB",
+      "Data": "15,05 MB",
+      "Indexes": "4,45 MB",
+      "% Index Weight": 0.223
+    },
+    {
+      "Database": "Ger7SaaS",
+      "Full Table Name": "dbo.TEL_PacoteArquivo",
+      "Total Rows": 107124,
+      "Avg Row Size": "78 Bytes",
+      "Total Reserved Size": "12,58 MB",
+      "Data": "7,99 MB",
+      "Indexes": "2,09 MB",
+      "% Index Weight": 0.166
+    },
+    {
+      "Database": "Ger7SaaS",
+      "Full Table Name": "dbo.TEL_VersaoArquivo",
+      "Total Rows": 69549,
+      "Avg Row Size": "64.954 Bytes",
+      "Total Reserved Size": "4,21 GB",
+      "Data": "4.308,20 MB",
+      "Indexes": "2,83 MB",
+      "% Index Weight": 0.001
+    },
+    {
+      "Database": "msdb",
+      "Full Table Name": "dbo.backupfile",
+      "Total Rows": 54106,
+      "Avg Row Size": "441 Bytes",
+      "Total Reserved Size": "22,95 MB",
+      "Data": "22,76 MB",
+      "Indexes": "0,15 MB",
+      "% Index Weight": 0.006
+    },
+    {
+      "Database": "msdb",
+      "Full Table Name": "dbo.backupmediaset",
+      "Total Rows": 54106,
+      "Avg Row Size": "85 Bytes",
+      "Total Reserved Size": "6,14 MB",
+      "Data": "4,38 MB",
+      "Indexes": "1,62 MB",
+      "% Index Weight": 0.263
+    },
+    {
+      "Database": "msdb",
+      "Full Table Name": "dbo.backupmediafamily",
+      "Total Rows": 54106,
+      "Avg Row Size": "73 Bytes",
+      "Total Reserved Size": "5,64 MB",
+      "Data": "3,76 MB",
+      "Indexes": "1,77 MB",
+      "% Index Weight": 0.314
+    },
+    {
+      "Database": "msdb",
+      "Full Table Name": "dbo.backupfilegroup",
+      "Total Rows": 27053,
+      "Avg Row Size": "120 Bytes",
+      "Total Reserved Size": "3,13 MB",
+      "Data": "3,09 MB",
+      "Indexes": "0,02 MB",
+      "% Index Weight": 0.005
+    },
+    {
+      "Database": "Ger7SaaS",
+      "Full Table Name": "dbo.TEL_Pacote",
+      "Total Rows": 7485,
+      "Avg Row Size": "1.134.361 Bytes",
+      "Total Reserved Size": "7,91 GB",
+      "Data": "8.097,35 MB",
+      "Indexes": "0,51 MB",
+      "% Index Weight": 0.0
+    },
+    {
+      "Database": "Ger7SaaS",
+      "Full Table Name": "dbo.GER_HistoricoAcesso",
+      "Total Rows": 6046,
+      "Avg Row Size": "119 Bytes",
+      "Total Reserved Size": "1,09 MB",
+      "Data": "0,69 MB",
+      "Indexes": "0,10 MB",
+      "% Index Weight": 0.094
+    },
+    {
+      "Database": "Ger7SaaS",
+      "Full Table Name": "dbo.TEL_Atualizacao",
+      "Total Rows": 3440,
+      "Avg Row Size": "129 Bytes",
+      "Total Reserved Size": "1,20 MB",
+      "Data": "0,42 MB",
+      "Indexes": "0,31 MB",
+      "% Index Weight": 0.26
+    },
+    {
+      "Database": "Ger7SaaS",
+      "Full Table Name": "dbo.TEL_CriterioAtualizacao",
+      "Total Rows": 2278,
+      "Avg Row Size": "18 Bytes",
+      "Total Reserved Size": "320 KB",
+      "Data": "0,04 MB",
+      "Indexes": "0,09 MB",
+      "% Index Weight": 0.3
+    }
+  ],
+  "advanced_metrics": {
+    "total_unused_mb": 723364.16,
+    "top_fragmented": [
+      {
+        "Database": "Ger7SaaS",
+        "Full Table Name": "dbo.TEL_Estatisticas",
+        "Unused": "721.986,09 MB",
+        "Total Reserved Size": "806,04 GB"
+      },
+      {
+        "Database": "Ger7SaaS",
+        "Full Table Name": "dbo.TEL_HistTelecarga",
+        "Unused": "986,72 MB",
+        "Total Reserved Size": "11,83 GB"
+      },
+      {
+        "Database": "Ger7SaaS",
+        "Full Table Name": "dbo.TEL_TransacMsg",
+        "Unused": "210,27 MB",
+        "Total Reserved Size": "901,77 GB"
+      },
+      {
+        "Database": "Ger7SaaS",
+        "Full Table Name": "dbo.TEL_AtualizacaoXPrevia",
+        "Unused": "99,41 MB",
+        "Total Reserved Size": "3,80 GB"
+      },
+      {
+        "Database": "Ger7SaaS",
+        "Full Table Name": "dbo.TEL_TransacLog",
+        "Unused": "45,41 MB",
+        "Total Reserved Size": "47,81 GB"
+      },
+      {
+        "Database": "Ger7SaaS",
+        "Full Table Name": "dbo.GER_Terminal",
+        "Unused": "16,32 MB",
+        "Total Reserved Size": "1,81 GB"
+      },
+      {
+        "Database": "Ger7SaaS",
+        "Full Table Name": "dbo.TEL_Pacote",
+        "Unused": "4,16 MB",
+        "Total Reserved Size": "7,91 GB"
+      },
+      {
+        "Database": "Ger7SaaS",
+        "Full Table Name": "dbo.TEL_VersaoArquivo",
+        "Unused": "3,45 MB",
+        "Total Reserved Size": "4,21 GB"
+      },
+      {
+        "Database": "Ger7SaaS",
+        "Full Table Name": "dbo.TEL_TransacErro",
+        "Unused": "3,02 MB",
+        "Total Reserved Size": "5,45 GB"
+      },
+      {
+        "Database": "Ger7SaaS",
+        "Full Table Name": "dbo.TEL_PacoteArquivo",
+        "Unused": "2,49 MB",
+        "Total Reserved Size": "12,58 MB"
+      }
+    ],
+    "schemas": [
+      {
+        "label": "dbo",
+        "value": 1833753.349375
+      }
+    ],
+    "index_offenders": [
+      {
+        "Database": "Ger7SaaS",
+        "Full Table Name": "dbo.TEL_TransacLog",
+        "Total Reserved Size": "47,81 GB",
+        "Indexes": "34.510,69 MB",
+        "% Index Weight": 0.705
+      },
+      {
+        "Database": "Ger7SaaS",
+        "Full Table Name": "dbo.TEL_AtualizacaoXPrevia",
+        "Total Reserved Size": "3,80 GB",
+        "Indexes": "2.686,49 MB",
+        "% Index Weight": 0.691
+      },
+      {
+        "Database": "Ger7SaaS",
+        "Full Table Name": "dbo.TEL_HistTelecarga",
+        "Total Reserved Size": "11,83 GB",
+        "Indexes": "8.208,34 MB",
+        "% Index Weight": 0.678
+      }
+    ]
+  }
+}
