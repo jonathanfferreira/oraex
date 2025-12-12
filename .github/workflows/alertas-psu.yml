@@ -1,0 +1,29 @@
+name: PSU Alerts GetNet
+
+on:
+  schedule:
+    - cron: '0 20 * * 1-5'  # 17:00 BRT
+    - cron: '0 12 * * 1'     # Segunda 09:00 BRT
+  workflow_dispatch:
+    inputs:
+      alert_type:
+        description: 'Tipo de alerta'
+        required: true
+        default: 'test'
+        type: choice
+        options:
+          - daily
+          - weekly
+          - test
+
+jobs:
+  send-alert:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Slack Alert
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data '{"text":":white_check_mark: *Alerta PSU funcionando!*"}' \
+            "$SLACK_WEBHOOK_URL"
