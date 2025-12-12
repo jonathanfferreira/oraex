@@ -290,12 +290,20 @@ def gerar_relatorio():
                  if poss_psu: col_psu = poss_psu[0]
             
              if col_psu in df_full_servers.columns:
-                 df_psu = df_full_servers[col_psu].fillna('Unknown').value_counts().reset_index()
+                 # Normalize to string to handle mixed types (float/str) in Excel
+                 df_full_servers[col_psu] = df_full_servers[col_psu].astype(str).str.strip()
+                 
+                 df_psu = df_full_servers[col_psu].replace('nan', 'Unknown').value_counts().reset_index()
                  df_psu.columns = ['PSU', 'Qtd']
+                 
+                 # Ordenar por Versão (String comparison works well for 19.x)
+                 df_psu = df_psu.sort_values('PSU', ascending=True)
+
                  fig_psu = px.bar(df_psu, x='Qtd', y='PSU', text='Qtd', orientation='h', title='')
                  fig_psu.update_traces(marker_color='#8b5cf6')
                  fig_psu.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', font_family="Inter", 
                                       margin=dict(t=10,l=10,r=10,b=10), autosize=True)
+                 fig_psu.update_yaxes(type='category')
                  plot_inv_psu = pio.to_html(fig_psu, full_html=False, include_plotlyjs=False, config={'displayModeBar': False, 'responsive': True})
         except Exception as e:
             print(f"Erro Plot PSU: {e}")
