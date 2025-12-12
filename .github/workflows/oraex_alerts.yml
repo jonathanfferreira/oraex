@@ -1,0 +1,42 @@
+name: ORAEX Slack Alerts
+
+on:
+  schedule:
+    # 17:00 BRT = 20:00 UTC (Mon-Fri)
+    - cron: '0 20 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      action_type:
+        description: 'Tipo de Alerta'
+        required: true
+        default: 'daily'
+        type: choice
+        options:
+          - daily
+          - critical
+          - weekly
+          - test
+
+jobs:
+  send-alerts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install openpyxl
+
+      - name: Run Slack Alert
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          ACTION=${{ inputs.action_type || 'daily' }}
+          echo "Executando alerta tipo: $ACTION"
+          python cmdb/alertas_slack_psu.py --action $ACTION

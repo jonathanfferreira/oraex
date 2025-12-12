@@ -97,28 +97,74 @@ def carregar_servidores_criticos(planilha_path: str) -> list:
 
 
 def lembrete_diario():
-    """Envia lembrete diário às 17:00 com as atividades da noite."""
-    # TODO: Ler atividades reais da planilha de 'GMUDs' para hoje
-    hoje = datetime.now()
+    """Envia lembrete diário com as atividades de GMUD planejadas para hoje."""
+    if not os.path.exists(PLANILHA_PATH):
+        print(f"Planilha não encontrada: {PLANILHA_PATH}")
+        return False
+
+    try:
+        wb = openpyxl.load_workbook(PLANILHA_PATH)
+        ws = wb['GMUDs'] # Nome da aba de GMUDs
+        hoje = datetime.now().date()
+        
+        gmuds_hoje = []
+        
+        # Iterar linhas (assumindo cabeçalho na linha 3)
+        for row in ws.iter_rows(min_row=4, values_only=True):
+            if not row[0]: continue
+            
+            # Mapeamento de colunas (Ajuste conforme necessidade)
+            # 0: ID, 1: Titulo, 2: Inicio, 3: Fim, 4: Status, 5: Ambiente, 6: Responsavel
+            data_inicio = row[2]
+            
+            if isinstance(data_inicio, datetime):
+                if data_inicio.date() == hoje:
+                    gmuds_hoje.append({
+                        'id': row[0],
+                        'titulo': row[1],
+                        'inicio': row[2],
+                        'fim': row[3],
+                        'status': row[4],
+                        'ambiente': row[5],
+                        'responsavel': row[6]
+                    })
+    except Exception as e:
+         print(f"Erro ao ler GMUDs: {e}")
+         return False
+
     data_formatada = hoje.strftime('%d/%m/%Y')
     
-    mensagem = f"""
-:calendar: *LEMBRETE DIÁRIO PSU - {data_formatada}*
+    if not gmuds_hoje:
+        mensagem = f":calendar: *SEM GMUDs PLANEJADAS PARA HOJE ({data_formatada})* :sleeping:"
+        return enviar_slack(mensagem)
 
-:clock6: *Janela de Execução Hoje:*
-
-:small_blue_diamond: *DEV* (18:00 - 03:00): Verificar Planilha
-:small_blue_diamond: *HML* (18:00 - 03:00): Verificar Planilha
-:small_blue_diamond: *PROD* (22:00 - 05:00): Verificar Planilha
-
-:warning: *Lembretes:*
-• Verificar aprovação do plantonista antes de iniciar
-• Validar acesso aos servidores
-• Atualizar status na planilha "ORAEX_Planejamento_GetNet_2026.xlsx".
-• Preencher coluna "DESIGNADO A".
-
-:rocket: Bom trabalho, equipe!
+    # Montar Mensagem Detalhada
+    blocos = [f":calendar: *ATIVIDADES PLANEJADAS - {data_formatada}*"]
+    
+    for gmud in gmuds_hoje:
+        # Ícone de Status
+        status = str(gmud['status']).upper().strip()
+        icon = ":white_circle:"
+        if status == 'ENCERRADA': icon = ":white_check_mark:"
+        elif status == 'CANCELADA': icon = ":x:"
+        elif status == 'AGENDADA': icon = ":clock12:"
+        elif status == 'EM EXECUÇÃO': icon = ":hammer_and_wrench:"
+        
+        hora_inicio = gmud['inicio'].strftime('%H:%M') if isinstance(gmud['inicio'], datetime) else "??:??"
+        hora_fim = gmud['fim'].strftime('%H:%M') if isinstance(gmud['fim'], datetime) else "??:??"
+        
+        bloco = f"""
+{icon} *{gmud['id']}* - {gmud['titulo']}
+> :computer: *Ambiente:* {gmud['ambiente']}
+> :clock6: *Janela:* {hora_inicio} às {hora_fim}
+> :bust_in_silhouette: *Responsável:* {gmud['responsavel'] or 'Não definidio'}
+> :clipboard: *Status:* `{status}`
 """
+        blocos.append(bloco)
+        
+    mensagem = "\n".join(blocos)
+    mensagem += "\n:warning: _Confirme o início no grupo de Operações._"
+    
     return enviar_slack(mensagem)
 
 
