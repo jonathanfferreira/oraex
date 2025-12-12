@@ -128,10 +128,11 @@ def gerar_relatorio():
             
             if col_dt_25 and col_st_25:
                 df_25[col_dt_25] = pd.to_datetime(df_25[col_dt_25], errors='coerce')
+                df_25 = df_25.dropna(subset=[col_dt_25]) # Drop invalid dates
                 kpi_2025_total = len(df_25)
                 
                 # Sucesso Rate
-                suc_25 = df_25[df_25[col_st_25].astype(str).str.contains('SUCESSO|CONCLU', case=False, na=False)]
+                suc_25 = df_25[df_25[col_st_25].astype(str).str.contains('SUCESSO|CONCLU|REALIZAD', case=False, na=False)]
                 if kpi_2025_total > 0:
                     kpi_2025_sucesso = f"{(len(suc_25)/kpi_2025_total)*100:.1f}%"
                 
@@ -182,7 +183,7 @@ def gerar_relatorio():
     df_raw = pd.concat(df_inv_list, ignore_index=True) if df_inv_list else pd.DataFrame()
     
     inv_total = 0; inv_criticos = 0; inv_atualizados = 0
-    plot_inv_env=""; plot_inv_ver=""; plot_inv_status=""; inv_html="<p>Sem dados</p>"
+    plot_inv_env=""; plot_inv_ver=""; plot_inv_status=""; plot_inv_psu=""; plot_inv_type=""; inv_html="<p>Sem dados</p>"
 
     if not df_raw.empty:
         # Lógica de Explosão (Unpivot) para Contagem Real
@@ -277,7 +278,38 @@ def gerar_relatorio():
                 plot_inv_status = pio.to_html(fig_stat, full_html=False, include_plotlyjs=False, config={'displayModeBar': False, 'responsive': True})
         except Exception as e: 
             print(f"Erro Plot Status: {e}")
+        except Exception as e: 
+            print(f"Erro Plot Status: {e}")
             plot_inv_status = ""
+
+        # 4. Por Versão PSU (Novo Pedido)
+        try:
+             col_psu = 'PSU VERSION'
+             if col_psu not in df_full_servers.columns:
+                 poss_psu = [c for c in df_full_servers.columns if 'PSU' in c and 'VER' in c]
+                 if poss_psu: col_psu = poss_psu[0]
+            
+             if col_psu in df_full_servers.columns:
+                 df_psu = df_full_servers[col_psu].fillna('Unknown').value_counts().reset_index()
+                 df_psu.columns = ['PSU', 'Qtd']
+                 fig_psu = px.bar(df_psu, x='Qtd', y='PSU', text='Qtd', orientation='h', title='')
+                 fig_psu.update_traces(marker_color='#8b5cf6')
+                 fig_psu.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', font_family="Inter", 
+                                      margin=dict(t=0,l=0,r=0,b=0))
+                 plot_inv_psu = pio.to_html(fig_psu, full_html=False, include_plotlyjs=False, config={'displayModeBar': False, 'responsive': True})
+        except Exception as e:
+            print(f"Erro Plot PSU: {e}")
+
+        # 5. Por Tipo (Primary/Standby) - "Soma dos Servidores"
+        try:
+             df_type = df_full_servers['TYPE'].value_counts().reset_index()
+             df_type.columns = ['Tipo', 'Qtd']
+             fig_type = px.pie(df_type, names='Tipo', values='Qtd', hole=0.5, color_discrete_sequence=['#3b82f6', '#93c5fd'])
+             fig_type.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', font_family="Inter", 
+                                   showlegend=True, margin=dict(t=0,l=0,r=0,b=0),
+                                   annotations=[dict(text=f"{inv_total}", x=0.5, y=0.5, font_size=20, showarrow=False)])
+             plot_inv_type = pio.to_html(fig_type, full_html=False, include_plotlyjs=False, config={'displayModeBar': False, 'responsive': True})
+        except: pass
 
         # Tabela CRÍTICA (Filtro)
         try:
@@ -330,7 +362,8 @@ def gerar_relatorio():
         plot_executores=plot_executores, plot_timeline=plot_timeline,
         # Inv Data
         inv_total=inv_total, inv_criticos=inv_criticos, inv_atualizados=inv_atualizados,
-        plot_inv_env=plot_inv_env, plot_inv_ver=plot_inv_ver, plot_inv_status=plot_inv_status, tabela_inv=inv_html,
+        plot_inv_env=plot_inv_env, plot_inv_ver=plot_inv_ver, plot_inv_status=plot_inv_status, 
+        plot_inv_psu=plot_inv_psu, plot_inv_type=plot_inv_type, tabela_inv=inv_html,
         # 2025 Data
         plot_2025_mensal=plot_2025_mensal, plot_2025_status=plot_2025_status, 
         kpi_2025_total=kpi_2025_total, kpi_2025_sucesso=kpi_2025_sucesso
