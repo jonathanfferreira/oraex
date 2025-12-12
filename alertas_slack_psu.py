@@ -27,12 +27,24 @@ import os
 SLACK_WEBHOOK_URL = os.environ.get("SLACK_WEBHOOK_URL", "")
 
 # Caminho para a planilha de planejamento
-PLANILHA_PATH = r"D:\antigravity\oraex\cmdb\ORAEX_Planejamento_GetNet_2026.xlsx"
+import argparse
+import sys
+
+# Caminho para a planilha de planejamento relative to script
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PLANILHA_PATH = os.path.join(BASE_DIR, 'ORAEX_Planejamento_GetNet_2026.xlsx')
 
 # ============ FUNÇÕES ============
 
-def enviar_slack(mensagem: str, webhook_url: str = SLACK_WEBHOOK_URL) -> bool:
+def enviar_slack(mensagem: str, webhook_url: str = None) -> bool:
     """Envia uma mensagem para o Slack via webhook."""
+    # Prioridade: Argumento -> Env Var -> Global
+    url = webhook_url or os.environ.get("SLACK_WEBHOOK_URL", "")
+    
+    if not url:
+        print("❌ ERRO: SLACK_WEBHOOK_URL não configurada.")
+        return False
+        
     try:
         payload = {
             "text": mensagem,
@@ -41,7 +53,7 @@ def enviar_slack(mensagem: str, webhook_url: str = SLACK_WEBHOOK_URL) -> bool:
         }
         data = json.dumps(payload).encode('utf-8')
         req = urllib.request.Request(
-            webhook_url, 
+            url, 
             data=data,
             headers={'Content-Type': 'application/json'}
         )
@@ -55,17 +67,28 @@ def enviar_slack(mensagem: str, webhook_url: str = SLACK_WEBHOOK_URL) -> bool:
 
 def carregar_servidores_criticos(planilha_path: str) -> list:
     """Carrega servidores com status 'Crítico' da planilha."""
+    if not os.path.exists(planilha_path):
+        print(f"❌ Planilha não encontrada: {planilha_path}")
+        return []
+        
     try:
         wb = openpyxl.load_workbook(planilha_path)
         ws = wb['Servidores']
         criticos = []
+        # iter_rows começa da linha 1. Se cabeçalho está na 3, dados começam na 4.
         for row in ws.iter_rows(min_row=4, values_only=True):
-            if row[4] == 'Crítico':  # Coluna Status
+            if not row[0]: continue # Pular vazio
+            
+            # Ajustar índices conforme colunas reais da planilha (A=0, E=4...)
+            # Assumindo: Hostname(0), Ambiente(1), PSU(2), Status(4)
+            status_val = row[4] if len(row) > 4 else None
+            
+            if status_val == 'Crítico':
                 criticos.append({
                     'hostname': row[0],
                     'ambiente': row[1],
                     'psu_atual': row[2],
-                    'ultima_atualizacao': row[5]
+                    'ultima_atualizacao': row[5] if len(row) > 5 else 'N/A'
                 })
         return criticos
     except Exception as e:
@@ -74,27 +97,74 @@ def carregar_servidores_criticos(planilha_path: str) -> list:
 
 
 def lembrete_diario():
-    """Envia lembrete diário às 17:00 com as atividades da noite."""
-    hoje = datetime.now()
-    dia_semana = hoje.strftime('%A')
+    """Envia lembrete diário com as atividades de GMUD planejadas para hoje."""
+    if not os.path.exists(PLANILHA_PATH):
+        print(f"Planilha não encontrada: {PLANILHA_PATH}")
+        return False
+
+    try:
+        wb = openpyxl.load_workbook(PLANILHA_PATH)
+        ws = wb['GMUDs'] # Nome da aba de GMUDs
+        hoje = datetime.now().date()
+        
+        gmuds_hoje = []
+        
+        # Iterar linhas (assumindo cabeçalho na linha 3)
+        for row in ws.iter_rows(min_row=4, values_only=True):
+            if not row[0]: continue
+            
+            # Mapeamento de colunas (Ajuste conforme necessidade)
+            # 0: ID, 1: Titulo, 2: Inicio, 3: Fim, 4: Status, 5: Ambiente, 6: Responsavel
+            data_inicio = row[2]
+            
+            if isinstance(data_inicio, datetime):
+                if data_inicio.date() == hoje:
+                    gmuds_hoje.append({
+                        'id': row[0],
+                        'titulo': row[1],
+                        'inicio': row[2],
+                        'fim': row[3],
+                        'status': row[4],
+                        'ambiente': row[5],
+                        'responsavel': row[6]
+                    })
+    except Exception as e:
+         print(f"Erro ao ler GMUDs: {e}")
+         return False
+
     data_formatada = hoje.strftime('%d/%m/%Y')
     
-    mensagem = f"""
-:calendar: *LEMBRETE DIÁRIO PSU - {data_formatada}*
+    if not gmuds_hoje:
+        mensagem = f":calendar: *SEM GMUDs PLANEJADAS PARA HOJE ({data_formatada})* :sleeping:"
+        return enviar_slack(mensagem)
 
-:clock6: *Janela de Execução Hoje:*
-
-:small_blue_diamond: *DEV* (18:00 - 03:00): 2 GMUDs planejadas
-:small_blue_diamond: *HML* (18:00 - 03:00): 3 GMUDs planejadas  
-:small_blue_diamond: *PROD* (22:00 - 05:00): ~5 GMUDs planejadas
-
-:warning: *Lembretes:*
-• Verificar aprovação do plantonista antes de iniciar
-• Validar acesso aos servidores
-• Atualizar status na planilha após execução
-
-:rocket: Bom trabalho, equipe!
+    # Montar Mensagem Detalhada
+    blocos = [f":calendar: *ATIVIDADES PLANEJADAS - {data_formatada}*"]
+    
+    for gmud in gmuds_hoje:
+        # Ícone de Status
+        status = str(gmud['status']).upper().strip()
+        icon = ":white_circle:"
+        if status == 'ENCERRADA': icon = ":white_check_mark:"
+        elif status == 'CANCELADA': icon = ":x:"
+        elif status == 'AGENDADA': icon = ":clock12:"
+        elif status == 'EM EXECUÇÃO': icon = ":hammer_and_wrench:"
+        
+        hora_inicio = gmud['inicio'].strftime('%H:%M') if isinstance(gmud['inicio'], datetime) else "??:??"
+        hora_fim = gmud['fim'].strftime('%H:%M') if isinstance(gmud['fim'], datetime) else "??:??"
+        
+        bloco = f"""
+{icon} *{gmud['id']}* - {gmud['titulo']}
+> :computer: *Ambiente:* {gmud['ambiente']}
+> :clock6: *Janela:* {hora_inicio} às {hora_fim}
+> :bust_in_silhouette: *Responsável:* {gmud['responsavel'] or 'Não definidio'}
+> :clipboard: *Status:* `{status}`
 """
+        blocos.append(bloco)
+        
+    mensagem = "\n".join(blocos)
+    mensagem += "\n:warning: _Confirme o início no grupo de Operações._"
+    
     return enviar_slack(mensagem)
 
 
@@ -108,8 +178,10 @@ def alerta_servidores_criticos():
     
     lista_servidores = "\n".join([
         f"• `{s['hostname']}` - {s['ambiente']} - PSU {s['psu_atual']}"
-        for s in criticos
+        for s in criticos[:15] # Limitar a 15 para não spammar
     ])
+    
+    truncado = "... (e mais)" if len(criticos) > 15 else ""
     
     mensagem = f"""
 :rotating_light: *ALERTA: SERVIDORES CRÍTICOS*
@@ -117,6 +189,7 @@ def alerta_servidores_criticos():
 Os seguintes servidores estão com PSU desatualizado (3+ quarters):
 
 {lista_servidores}
+{truncado}
 
 :point_right: *Ação necessária:* Priorizar atualização destes hosts.
 """
@@ -131,16 +204,10 @@ def resumo_semanal():
     mensagem = f"""
 :bar_chart: *RESUMO SEMANAL PSU - Semana {semana_passada.strftime('%d/%m')} a {hoje.strftime('%d/%m/%Y')}*
 
-:white_check_mark: *GMUDs Executadas:* [preencher]
-:x: *GMUDs Canceladas:* [preencher]
-:arrows_counterclockwise: *GMUDs Replanejadas:* [preencher]
+Acesse o Dashboard completo para ver os indicadores:
+https://jonathanfferreira.github.io/oraex/
 
-:chart_with_upwards_trend: *Taxa de Sucesso:* [calcular]%
-
-:calendar: *Próxima Semana:*
-• [GMUDs planejadas]
-
-:memo: Atualizar dados na planilha calendario_psu_2026.xlsx
+:memo: Não esqueça de atualizar a aba 'Execução' na planilha.
 """
     return enviar_slack(mensagem)
 
@@ -153,28 +220,34 @@ def testar_conexao():
 
 # ============ EXECUÇÃO ============
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Gestão de Alertas Slack PSU')
+    parser.add_argument('--action', choices=['test', 'daily', 'critical', 'weekly'], help='Ação a ser executada')
+    args = parser.parse_args()
+
     print("=" * 50)
     print("Sistema de Alertas PSU GetNet")
     print("=" * 50)
     
-    print("\nEscolha uma opção:")
-    print("1. Testar conexão com Slack")
-    print("2. Enviar lembrete diário")
-    print("3. Enviar alerta de servidores críticos")
-    print("4. Enviar resumo semanal")
-    print("5. Sair")
-    
-    opcao = input("\nOpção: ").strip()
-    
-    if opcao == "1":
-        testar_conexao()
-    elif opcao == "2":
-        lembrete_diario()
-    elif opcao == "3":
-        alerta_servidores_criticos()
-    elif opcao == "4":
-        resumo_semanal()
-    elif opcao == "5":
-        print("Até mais!")
+    if args.action:
+        # Modo não-interativo (Automação)
+        if args.action == 'test': testar_conexao()
+        elif args.action == 'daily': lembrete_diario()
+        elif args.action == 'critical': alerta_servidores_criticos()
+        elif args.action == 'weekly': resumo_semanal()
     else:
-        print("Opção inválida.")
+        # Modo Interativo (Menu)
+        print("\nEscolha uma opção:")
+        print("1. Testar conexão com Slack")
+        print("2. Enviar lembrete diário")
+        print("3. Enviar alerta de servidores críticos")
+        print("4. Enviar resumo semanal")
+        print("5. Sair")
+        
+        opcao = input("\nOpção: ").strip()
+        
+        if opcao == "1": testar_conexao()
+        elif opcao == "2": lembrete_diario()
+        elif opcao == "3": alerta_servidores_criticos()
+        elif opcao == "4": resumo_semanal()
+        elif opcao == "5": print("Até mais!")
+        else: print("Opção inválida.")
