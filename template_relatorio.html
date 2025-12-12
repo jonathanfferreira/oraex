@@ -492,6 +492,23 @@
 
                 <!-- === INVENTORY TAB === -->
                 <div x-show="activeTab === 'inventory'" x-cloak x-transition.opacity class="space-y-6">
+
+                    <!-- Top Charts Row -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Server Composition -->
+                        <div class="glass p-8 h-[350px]">
+                            <h3 class="text-sm font-bold text-slate-700 dark:text-slate-200 uppercase mb-4">Composição
+                                do Parque (Total x Tipo)</h3>
+                            <div class="h-full w-full">{{ plot_inv_type }}</div>
+                        </div>
+                        <!-- PSU Versions -->
+                        <div class="glass p-8 h-[350px]">
+                            <h3 class="text-sm font-bold text-slate-700 dark:text-slate-200 uppercase mb-4">Distribuição
+                                por Versão de PSU</h3>
+                            <div class="h-full w-full">{{ plot_inv_psu }}</div>
+                        </div>
+                    </div>
+
                     <div class="glass p-6">
                         <div class="flex justify-between items-end mb-4">
                             <div>
