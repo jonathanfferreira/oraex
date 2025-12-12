@@ -7,8 +7,6 @@ on:
       - 'cmdb/**.xlsx'
       - 'cmdb/**.py'
       - 'cmdb/**.html'
-      - 'cmdb/**.json'
-      - 'cmdb/**.js'
   workflow_dispatch:
 
 permissions:
