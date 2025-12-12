@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ORAEX | Dashboard Executivo</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0ea5e9">
+    <link rel="apple-touch-icon" href="oraex_logo.png">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -451,6 +454,13 @@
 
                 <!-- === GMUDS TAB === -->
                 <div x-show="activeTab === 'gmuds'" x-cloak x-transition.opacity class="space-y-6">
+                    <!-- Timeline Chart -->
+                    <div class="glass p-6 h-[400px]">
+                        <h3 class="text-lg font-bold text-slate-700 dark:text-slate-200 mb-4">Linha do Tempo (Janelas de
+                            Manutenção)</h3>
+                        <div class="h-full w-full relative">{{ plot_timeline }}</div>
+                    </div>
+
                     <!-- Status Chart for GMUDs -->
                     <div class="glass p-6 h-80">
                         <h3 class="text-lg font-bold text-slate-700 dark:text-slate-200 mb-4">Status Geral das Mudanças
@@ -542,6 +552,13 @@
                 }
                 tr[i].style.display = found ? "" : "none";
             }
+        }
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js');
+            });
         }
     </script>
 </body>
