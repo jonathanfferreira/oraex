@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+*.env
+venv/
+
+# Windows
+Thumbs.db
+*.lnk
+
+# Office temp files
+~$*
+
+# IDE
+.vscode/
+.idea/
