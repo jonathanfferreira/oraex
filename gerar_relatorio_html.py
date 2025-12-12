@@ -237,7 +237,7 @@ def gerar_relatorio():
                                  color_discrete_map=colors_proto)
                 fig_env.update_traces(textposition='outside')
                 fig_env.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', font_family="Inter", 
-                                     showlegend=False, margin=dict(t=0,l=0,r=0,b=0))
+                                     showlegend=False, margin=dict(t=0,l=0,r=0,b=0), autosize=True)
                 fig_env.update_xaxes(visible=False)
                 plot_inv_env = pio.to_html(fig_env, full_html=False, include_plotlyjs=False, config={'displayModeBar': False, 'responsive': True})
         except Exception as e: 
@@ -295,7 +295,7 @@ def gerar_relatorio():
                  fig_psu = px.bar(df_psu, x='Qtd', y='PSU', text='Qtd', orientation='h', title='')
                  fig_psu.update_traces(marker_color='#8b5cf6')
                  fig_psu.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', font_family="Inter", 
-                                      margin=dict(t=0,l=0,r=0,b=0))
+                                      margin=dict(t=10,l=10,r=10,b=10), autosize=True)
                  plot_inv_psu = pio.to_html(fig_psu, full_html=False, include_plotlyjs=False, config={'displayModeBar': False, 'responsive': True})
         except Exception as e:
             print(f"Erro Plot PSU: {e}")
@@ -306,8 +306,9 @@ def gerar_relatorio():
              df_type.columns = ['Tipo', 'Qtd']
              fig_type = px.pie(df_type, names='Tipo', values='Qtd', hole=0.5, color_discrete_sequence=['#3b82f6', '#93c5fd'])
              fig_type.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', font_family="Inter", 
-                                   showlegend=True, margin=dict(t=0,l=0,r=0,b=0),
-                                   annotations=[dict(text=f"{inv_total}", x=0.5, y=0.5, font_size=20, showarrow=False)])
+                                   showlegend=True, margin=dict(t=10,l=10,r=10,b=10), autosize=True,
+                                   legend=dict(orientation="h", yanchor="bottom", y=-0.1, xanchor="center", x=0.5), # Legend bottom to save width
+                                   annotations=[dict(text=f"{inv_total}", x=0.5, y=0.5, font_size=24, showarrow=False)])
              plot_inv_type = pio.to_html(fig_type, full_html=False, include_plotlyjs=False, config={'displayModeBar': False, 'responsive': True})
         except: pass
 
