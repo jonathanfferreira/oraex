@@ -1,0 +1,15 @@
+{
+  "name": "ORAEX - Gestão PSU 2026",
+  "short_name": "ORAEX PSU",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0ea5e9",
+  "icons": [
+    {
+      "src": "./oraex_logo.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png"
+    }
+  ]
+}

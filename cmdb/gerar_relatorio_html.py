@@ -89,8 +89,28 @@ def gerar_relatorio():
         cols = ['DATA INICIO', 'CLIENTE', 'ENTORNO', 'GMUD', 'TÍTULO', col_status, 'DESIGNADO A']
         cols = [c for c in cols if c in df_gmud.columns]
         gmud_html = df_gmud[df_gmud[col_status]!='NOVO'].tail(50).to_html(classes='table table-hover table-sm small', index=False, border=0)
+
+        # Timeline
+        plot_timeline = ""
+        try:
+             range_cols = ['DATA INICIO', 'DATA FIM']
+             if all(c in df_gmud.columns for c in range_cols):
+                 df_gmud[range_cols[0]] = pd.to_datetime(df_gmud[range_cols[0]], errors='coerce')
+                 df_gmud[range_cols[1]] = pd.to_datetime(df_gmud[range_cols[1]], errors='coerce')
+                 df_tl = df_gmud.dropna(subset=range_cols)
+                 df_tl = df_tl[~df_tl[col_status].isin(['NOVO', 'CANCELADA'])]
+                 
+                 if not df_tl.empty:
+                     y_ax = 'AMBIENTE' if 'AMBIENTE' in df_tl.columns else 'CLIENTE'
+                     fig_tl = px.timeline(df_tl, x_start=range_cols[0], x_end=range_cols[1], y=y_ax, color=col_status, 
+                                          color_discrete_map=color_map, hover_name='TÍTULO')
+                     fig_tl.update_yaxes(autorange="reversed")
+                     fig_tl.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', font_family="Inter", 
+                                          showlegend=True, margin=dict(t=10,l=10,r=10,b=10), height=350)
+                     plot_timeline = pio.to_html(fig_tl, full_html=False, include_plotlyjs=False, config={'displayModeBar': True, 'responsive': True})
+        except Exception as e: print(f"Erro Timeline: {e}")
     else:
-        total_gmuds = 0; sucesso_count=0; falha_count=0; taxa=0; plot_mensal=""; plot_pizza=""; gmud_html="<p>Sem dados</p>"
+        total_gmuds = 0; sucesso_count=0; falha_count=0; taxa=0; plot_mensal=""; plot_pizza=""; gmud_html="<p>Sem dados</p>"; plot_timeline=""
 
     # --- INVENTÁRIO (Lógica Nova: Primary + Standby) ---
     # Ler abas originais para garantir dados de Standby
@@ -260,7 +280,7 @@ def gerar_relatorio():
         # GMUD Data
         total_gmuds=total_gmuds, total_sucesso=sucesso_count, total_falhas=falha_count, taxa_sucesso=f"{taxa:.1f}",
         plot_mensal=plot_mensal, plot_pizza=plot_pizza, tabela_gmuds=gmud_html,
-        plot_executores=plot_executores, # <--- Added back
+        plot_executores=plot_executores, plot_timeline=plot_timeline,
         # Inv Data
         inv_total=inv_total, inv_criticos=inv_criticos, inv_atualizados=inv_atualizados,
         plot_inv_env=plot_inv_env, plot_inv_ver=plot_inv_ver, plot_inv_status=plot_inv_status, tabela_inv=inv_html
