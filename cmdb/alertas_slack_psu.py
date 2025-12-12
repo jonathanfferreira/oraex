@@ -27,7 +27,7 @@ import os
 SLACK_WEBHOOK_URL = os.environ.get("SLACK_WEBHOOK_URL", "")
 
 # Caminho para a planilha de planejamento
-PLANILHA_PATH = r"D:\antigravity\oraex\cmdb\calendario_psu_2026.xlsx"
+PLANILHA_PATH = r"D:\antigravity\oraex\cmdb\ORAEX_Planejamento_GetNet_2026.xlsx"
 
 # ============ FUNÇÕES ============
 
