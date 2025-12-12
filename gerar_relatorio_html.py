@@ -112,6 +112,45 @@ def gerar_relatorio():
     else:
         total_gmuds = 0; sucesso_count=0; falha_count=0; taxa=0; plot_mensal=""; plot_pizza=""; gmud_html="<p>Sem dados</p>"; plot_timeline=""
 
+    # --- RETRO 2025 ---
+    plot_2025_mensal = ""
+    plot_2025_status = ""
+    kpi_2025_total = 0
+    kpi_2025_sucesso = "0%"
+    try:
+        file_2025 = os.path.join(DIR_BASE, 'consolidated_gmuds_2025.xlsx')
+        if os.path.exists(file_2025):
+            df_25 = pd.read_excel(file_2025)
+            # Normalizar
+            df_25.columns = df_25.columns.astype(str).str.strip().str.upper()
+            col_dt_25 = next((c for c in df_25.columns if 'DATA' in c or 'INICIO' in c), None)
+            col_st_25 = next((c for c in df_25.columns if 'STATUS' in c or 'SITU' in c), None)
+            
+            if col_dt_25 and col_st_25:
+                df_25[col_dt_25] = pd.to_datetime(df_25[col_dt_25], errors='coerce')
+                kpi_2025_total = len(df_25)
+                
+                # Sucesso Rate
+                suc_25 = df_25[df_25[col_st_25].astype(str).str.contains('SUCESSO|CONCLU', case=False, na=False)]
+                if kpi_2025_total > 0:
+                    kpi_2025_sucesso = f"{(len(suc_25)/kpi_2025_total)*100:.1f}%"
+                
+                # Plot Mensal 2025
+                df_25['Mes'] = df_25[col_dt_25].dt.to_period('M').astype(str)
+                df_mes_25 = df_25.groupby('Mes').size().reset_index(name='Qtd')
+                fig_m25 = px.bar(df_mes_25, x='Mes', y='Qtd', text='Qtd', title='', color_discrete_sequence=['#3b82f6'])
+                fig_m25.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', font_family="Inter", margin=dict(t=10,l=10,r=10,b=20))
+                plot_2025_mensal = pio.to_html(fig_m25, full_html=False, include_plotlyjs=False, config={'displayModeBar': False})
+                
+                # Plot Status 2025
+                df_st_25 = df_25[col_st_25].value_counts().reset_index()
+                df_st_25.columns = ['Status', 'Qtd']
+                fig_s25 = px.pie(df_st_25, names='Status', values='Qtd', hole=0.7, color_discrete_sequence=px.colors.qualitative.Pastel)
+                fig_s25.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', font_family="Inter", showlegend=True, margin=dict(t=0,l=0,r=0,b=0))
+                plot_2025_status = pio.to_html(fig_s25, full_html=False, include_plotlyjs=False, config={'displayModeBar': False})
+    except Exception as e:
+        print(f"Erro 2025: {e}")
+
     # --- INVENTÁRIO (Lógica Nova: Primary + Standby) ---
     # Ler abas originais para garantir dados de Standby
     original_sheets = ['GetNet - Oracle Databases', 'PagoNxt - Databases']
@@ -240,11 +279,19 @@ def gerar_relatorio():
             print(f"Erro Plot Status: {e}")
             plot_inv_status = ""
 
-        # Tabela
+        # Tabela CRÍTICA (Filtro)
         try:
             cols_inv = ['HOSTNAME', 'TYPE', 'AMBIENTE', 'VERSION', col_status_psu]
             cols_to_show = [c for c in cols_inv if c in df_full_servers.columns]
-            inv_html = df_full_servers[cols_to_show].head(1000).to_html(classes='w-full text-sm text-left', index=False, border=0)
+            
+            # Filtro de Criticidade
+            mask_crit = df_full_servers[col_status_psu].astype(str).str.contains('Desatualizado|Atenção|Baixo|Crítico', case=False, na=False)
+            df_critical = df_full_servers[mask_crit].copy()
+            
+            if df_critical.empty:
+                inv_html = "<div class='p-4 text-green-600 bg-green-50 rounded-lg'>✅ Nenhum servidor crítico encontrado! Parabéns!</div>"
+            else:
+                inv_html = df_critical[cols_to_show].head(1000).to_html(classes='w-full text-sm text-left', index=False, border=0)
         except: 
             inv_html="<p>Sem dados</p>"
 
@@ -283,7 +330,10 @@ def gerar_relatorio():
         plot_executores=plot_executores, plot_timeline=plot_timeline,
         # Inv Data
         inv_total=inv_total, inv_criticos=inv_criticos, inv_atualizados=inv_atualizados,
-        plot_inv_env=plot_inv_env, plot_inv_ver=plot_inv_ver, plot_inv_status=plot_inv_status, tabela_inv=inv_html
+        plot_inv_env=plot_inv_env, plot_inv_ver=plot_inv_ver, plot_inv_status=plot_inv_status, tabela_inv=inv_html,
+        # 2025 Data
+        plot_2025_mensal=plot_2025_mensal, plot_2025_status=plot_2025_status, 
+        kpi_2025_total=kpi_2025_total, kpi_2025_sucesso=kpi_2025_sucesso
     )
 
     with open(ARQUIVO_SAIDA, 'w', encoding='utf-8') as f:
